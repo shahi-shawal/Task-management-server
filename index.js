@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -46,6 +46,41 @@ app.post("/task", async(req, res)=>{
     res.send(result)
 })
 
+app.get("/task", async(req, res)=>{
+    const result = await taskCollection.find().toArray()
+    res.send(result)
+})
+app.get("/task/:id", async(req, res)=>{
+    const id= req.params.id
+    const query ={_id:new ObjectId(id)}
+    const result = await taskCollection.findOne(query)
+    res.send(result)
+})
+
+
+app.put("/task/:id", async(req, res)=>{
+    const id = req.params.id
+    const data= req.body
+    const filter= {_id: new ObjectId(id)}
+    const updateTask = {
+        $set:{
+            title:data.title,
+            priority: data.priority,
+            deadline: data.deadline,
+            description: data.description
+        }
+    }
+    const result = await taskCollection.updateOne(filter,updateTask)
+    res.send(result)
+})
+
+
+
+app.delete("/task/:id",async(req, res)=>{
+    const id =req.params.id
+    const query = {_id: new ObjectId(id)}
+    const result = await taskCollection.deleteOne(query)
+})
 
 
 
